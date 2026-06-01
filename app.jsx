@@ -43,12 +43,19 @@ function loadUser() {
   return { ...window.QSS.DEFAULT_USER };
 }
 
+const OFFICER_SESSION_KEY = "qss_officer_session_v1";
+
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [user, setUser] = React.useState(loadUser);
   const [screen, setScreen] = React.useState("home");
   const [toast, setToast] = React.useState("");
   const toastTimer = React.useRef(null);
+
+  const [officerMode, setOfficerMode] = React.useState(() => {
+    try { return localStorage.getItem(OFFICER_SESSION_KEY) === "1"; } catch (e) { return false; }
+  });
+  const [showOfficerLogin, setShowOfficerLogin] = React.useState(false);
 
   React.useEffect(() => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(user)); } catch (e) {}
@@ -99,7 +106,19 @@ function App() {
       setUser({ ...window.QSS.DEFAULT_USER });
       setScreen("home");
     },
+    openOfficerLogin() { setShowOfficerLogin(true); },
   }), []);
+
+  const handleOfficerLogin = () => {
+    try { localStorage.setItem(OFFICER_SESSION_KEY, "1"); } catch (e) {}
+    setOfficerMode(true);
+    setShowOfficerLogin(false);
+  };
+
+  const handleOfficerLogout = () => {
+    try { localStorage.removeItem(OFFICER_SESSION_KEY); } catch (e) {}
+    setOfficerMode(false);
+  };
 
   // apply tweaks to wrapper vars
   const wrapStyle = {
@@ -124,6 +143,14 @@ function App() {
   const navActive = ["home", "stamps", "book", "promos", "profile"].includes(screen) ? screen : "home";
   const showNav = user.onboarded && screen !== "tiers" && screen !== "qr";
 
+  if (officerMode) {
+    return (
+      <div data-theme={t.theme} data-radius={t.radius} style={wrapStyle}>
+        <OfficerAppShell onLogout={handleOfficerLogout} />
+      </div>
+    );
+  }
+
   return (
     <div data-theme={t.theme} data-radius={t.radius} style={wrapStyle}>
       <div className="app-frame">
@@ -134,6 +161,12 @@ function App() {
               {showNav && <BottomNav active={navActive} onNav={go} />}
             </React.Fragment>}
         <Toast msg={toast} />
+        {showOfficerLogin && (
+          <OfficerLoginSheet
+            onLogin={handleOfficerLogin}
+            onClose={() => setShowOfficerLogin(false)}
+          />
+        )}
       </div>
 
       <TweaksPanel>

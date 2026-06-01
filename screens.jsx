@@ -328,6 +328,11 @@ function ProfileScreen({ user, actions, go }) {
           <Icon name="logout" size={19} /> Keluar
         </button>
         <div style={{ textAlign: "center", fontSize: 12, color: "var(--text-mute)", fontWeight: 600, paddingBottom: 4 }}>QSS Car Wash · Member sejak 2026</div>
+        {actions.openOfficerLogin && (
+          <button onClick={actions.openOfficerLogin} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 8px", color: "var(--text-mute)", fontWeight: 600, fontSize: 12 }}>
+            <Icon name="shield" size={13} /> Mode petugas
+          </button>
+        )}
       </div>
 
       {/* edit sheet */}

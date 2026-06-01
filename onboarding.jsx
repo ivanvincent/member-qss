@@ -52,6 +52,9 @@ function Onboarding({ actions }) {
         <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)", display: "flex", flexDirection: "column", gap: 12 }}>
           <Button size="lg" full iconRight="arrowRight" onClick={() => setStep(1)}>Jadi member</Button>
           <button onClick={() => actions.completeOnboarding(null)} style={{ color: "var(--text-dim)", fontWeight: 700, fontSize: 14.5, padding: 8 }}>Saya sudah punya akun</button>
+          <button onClick={() => actions.openOfficerLogin && actions.openOfficerLogin()} style={{ color: "var(--text-mute)", fontWeight: 600, fontSize: 13, padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <Icon name="shield" size={14} /> Masuk sebagai petugas
+          </button>
         </div>
       </div>
     );
