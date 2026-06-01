@@ -219,11 +219,25 @@ function TiersScreen({ user, actions, go }) {
 /* ============ PROMOS ============ */
 function PromosScreen({ go }) {
   const [open, setOpen] = React.useState(null);
+
+  // Merge officer-published announcements with hardcoded promos
+  const dynamicPromos = React.useMemo(() => {
+    try {
+      const raw = localStorage.getItem("qss_announcements_v1");
+      if (!raw) return [];
+      return JSON.parse(raw)
+        .filter((a) => a.active)
+        .map((a) => ({ id: a.id, month: "JUNI", badge: a.badge || "Info", title: a.title, desc: a.message, tag: a.category || "promo", hue: a.hue ?? 200 }));
+    } catch (e) { return []; }
+  }, []);
+
+  const allPromos = [...dynamicPromos, ...window.QSS.PROMOS];
+
   return (
     <div className="app-scroll">
       <TopBar title="Promo" subtitle="Juni 2026" />
       <div style={{ padding: "0 18px", display: "flex", flexDirection: "column", gap: 14 }}>
-        {window.QSS.PROMOS.map((p) => <PromoCard key={p.id} promo={p} onOpen={setOpen} />)}
+        {allPromos.map((p) => <PromoCard key={p.id} promo={p} onOpen={setOpen} />)}
         <div style={{ height: 4 }} />
       </div>
       <Sheet open={!!open} onClose={() => setOpen(null)} title={open ? open.title : ""}>
