@@ -1,0 +1,46 @@
+# DOM Cloud deployment — QSS Car Wash (static site, no build step)
+# Paste this into DOM Cloud dashboard → Runner, or save as .domcloud.yml
+
+source:
+  url: https://github.com/ivanvincent/member-qss
+  branch: main
+  type: github
+
+features:
+  - nginx
+
+nginx:
+  root: /
+  index: index.html
+  fastcgi: 'off'
+  passenger:
+    enabled: 'off'
+
+  # Serve .jsx files as JavaScript (Babel transpiles them client-side)
+  locations:
+    - match: ~* \.jsx$
+      add_header:
+        Content-Type: application/javascript
+        Cache-Control: "public, max-age=86400"
+        X-Content-Type-Options: nosniff
+
+    # Cache static assets aggressively
+    - match: ~* \.(js|css|woff2?|ttf|otf|eot|svg|ico|png|jpg|webp)$
+      add_header:
+        Cache-Control: "public, max-age=604800, immutable"
+
+    # HTML must never be cached (app updates take effect immediately)
+    - match: ~* \.html$
+      add_header:
+        Cache-Control: "no-cache, no-store, must-revalidate"
+        Pragma: no-cache
+
+    # SPA fallback — serves index.html for any unmatched path
+    - match: /
+      try_files: $uri $uri/ /index.html
+
+  # Security headers
+  add_header:
+    X-Frame-Options: SAMEORIGIN
+    X-XSS-Protection: "1; mode=block"
+    Referrer-Policy: strict-origin-when-cross-origin
